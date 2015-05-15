@@ -1,7 +1,7 @@
 #!/bin/python
 import os
 import sys
-import signal
+# import signal
 import pykickstart
 import logging
 from pyanaconda.users import Users
@@ -15,7 +15,8 @@ OUTPUT_KICKSTART_PATH = "/root/initial-setup-ks.cfg"
 # set root to "/", we are now in the installed system
 iutil.setSysroot("/")
 
-signal.signal(signal.SIGINT, signal.SIG_IGN)
+# For dev/debugging, don't ignore ctrl-c
+# signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 initial_setup_log.init()
 log = logging.getLogger("initial-setup")
@@ -99,7 +100,9 @@ try:
     parser.readKickstart(INPUT_KICKSTART_PATH)
     log.info("kickstart parsing done")
 except pykickstart.errors.KickstartError as kserr:
-    log.exception("kickstart parsing failed")
+    log.debug("kickstart parsing failed")
+    log.exception(kserr)
+    log.debug("System path: %s", sys.path)
     sys.exit(1)
 
 if mode == "gui":
@@ -107,9 +110,15 @@ if mode == "gui":
         # Try to import IS gui specifics
         log.debug("trying to import GUI")
         import gui
-    except ImportError:
+    except ImportError, e:
         log.error("GUI import failed, falling back to TUI")
-        mode = "tui"
+        log.exception(e)
+        log.debug("system path: %s", sys.path)
+        log.error("We are testing gui modules, so we are raising any exceptions"
+                  " from module imports")
+        raise
+        #mode = "tui"
+
 
 if mode == "gui":
     # gui already imported (see above)
@@ -143,12 +152,14 @@ ret = ui.run()
 # all other cases return True or None
 if ret == False:
     if data.eula.agreed:
-    	log.info("EULA accepted, shutting down")
+        log.info("EULA accepted, shutting down")
         sys.exit(0)
     else:
         # EULA not agreed, reboot the system and leave Initial Setup enabled
         log.info("EULA not accepted, leaving Initial Setup enabled and rebooting the system")
-        os.system("reboot")
+        log.info("This is where I would have rebooted the system.")
+        sys.exit(0)
+#        os.system("reboot")
 
 # Do not execute sections that were part of the original
 # anaconda kickstart file (== have .seen flag set)

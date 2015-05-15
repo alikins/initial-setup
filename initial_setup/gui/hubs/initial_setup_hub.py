@@ -3,7 +3,7 @@ from pyanaconda.ui.gui.hubs import Hub
 from pyanaconda.ui.gui.spokes import Spoke
 from pyanaconda.ui.common import collect
 from initial_setup import product
-import os
+# import os
 import sys
 
 __all__ = ["InitialSetupMainHub"]
@@ -67,7 +67,6 @@ class InitialSetupMainHub(Hub):
             spoke.window.set_property("distribution",
                                       product.product_title().upper())
 
-
     @property
     def continueButton(self):
         return self.builder.get_object("continueButton")
@@ -94,6 +93,8 @@ class InitialSetupMainHub(Hub):
             if not license_file or self.data.eula.agreed:
                 # agreed, just exit
                 sys.exit(0)
-            else:
+            # else:
                 # not agreed, reboot the system and leave Initial Setup enabled
-                os.system("reboot")
+                # os.system("reboot")
+        print "I would have rebooted here."
+        sys.exit(0)
