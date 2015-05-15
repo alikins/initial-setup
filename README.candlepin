@@ -1,0 +1,33 @@
+This is a version of rhinstaller/initial-setup that has
+been defanged a bit for easier dev/testing.
+
+Mainly, instead of calling 'os.reboot' on failures, it
+just prints a warning and exists.
+
+
+* logging 
+
+The logging has also been changed to use stdout for logging
+and uses the rainbow-logging-handler for colorful logging.
+
+We also use the 'logging-tree' module to show a dump of
+the logging config at start up, since it's a little complicated.
+
+
+* invoking
+The "initial-setup" shell script is also changed to include
+our rhsm module path on PYTHONPATH, and without deleting
+services.
+
+Though, most of the time I just run:
+
+sudo PYTHONPATH=/usr/share/rhsm/ python -m initial_setup
+
+And for testing subman modules, from the subman dir:
+
+
+sudo make install-files && sudo PYTHONPATH=/usr/share/rhsm/ python -m initial_setup
+
+
+(It's a little hard to test well from a checkout without installing at the moment,
+mostly because of the paths to glade files and the modules);
